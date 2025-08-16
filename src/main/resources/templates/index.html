@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <title>RAG Chat (Spring Boot)</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 860px; margin: 30px auto; }
+    textarea,input,button,select { width: 100%; padding: 8px; margin: 6px 0; }
+    .card { border: 1px solid #ddd; padding: 12px; border-radius: 8px; margin-bottom: 16px; }
+    .answer { white-space: pre-wrap; background: #fafafa; padding: 12px; border-radius: 6px; }
+    .ok { color: green; }
+  </style>
+</head>
+<body>
+  <h2>RAG Chat (Spring Boot + H2)</h2>
+
+  <div class="card">
+    <h3>1) Ingest Text</h3>
+    <form method="post" action="/ingest">
+      <label>Document ID</label>
+      <input name="docId" placeholder="networks101" required>
+      <label>Raw Text</label>
+      <textarea name="text" rows="8" placeholder="Paste your notes, docs, or content here..." required></textarea>
+      <button type="submit">Ingest</button>
+    </form>
+    <div class="ok" th:text="${ingestMsg}"></div>
+  </div>
+
+  <div class="card">
+    <h3>2) Ask</h3>
+    <form method="post" action="/ask">
+      <label>Question</label>
+      <input name="question" placeholder="What is a VPN tunnel?" required>
+      <label>TopK (defaults to 5)</label>
+      <input name="topK" type="number" value="5" min="1" max="10">
+      <button type="submit">Ask</button>
+    </form>
+    <h4>Answer</h4>
+    <div class="answer" th:text="${answer}"> </div>
+  </div>
+
+  <p><a href="/h2" target="_blank">Open H2 Console</a>
+     (JDBC URL: <code>jdbc:h2:file:./ragdb</code>)</p>
+</body>
+</html>

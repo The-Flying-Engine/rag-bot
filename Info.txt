@@ -1,0 +1,11 @@
+Installing Ollama : 
+brew install ollama
+brew upgrade ollama
+
+
+Run Ollama in background : 
+brew services start ollama
+brew services stop ollama
+
+With running Ollama in background strat chatting : 
+ollama run llama3
