@@ -8,7 +8,10 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,6 +20,27 @@ public class ChatClient {
   @Value("${llm.base-url}") private String baseUrl;
   @Value("${llm.api-key:}") private String apiKey;
   @Value("${llm.chat-model}") private String chatModel;
+
+//Ways to read info from application.properties
+
+//  @Value("${llm.base-url}")
+// private String baseUrl;
+
+// @Value("${llm.chat-model}")
+// private String chatModel;
+
+// @ConfigurationProperties(prefix = "llm")
+// public class LlmConfig {
+//     private String baseUrl;
+//     private String chatModel;
+//     private String embedModel;
+//     // getters & setters
+// }
+
+// @Autowired
+// Environment env;
+// String baseUrl = env.getProperty("llm.base-url");
+
 
   private final ObjectMapper om = new ObjectMapper();
 

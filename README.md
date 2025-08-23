@@ -1,247 +1,113 @@
-# RAG Chat (Spring Boot + H2)
+# RAG Chat — Windows Setup & Run (README)
 
-A beginner-friendly **RAG** (Retrieve-Augment-Generate) demo using **Spring Boot**.  
-You can paste text, store it as chunks with **vector embeddings**, and ask questions answered from your text only.
-
-> Tech: Spring Boot (Web, JDBC), H2 DB, Jackson, HTTP client, optional Thymeleaf UI.  
-> DB: H2 file DB by default. Upgrade path: PostgreSQL + pgvector.
+A simple, step-by-step guide for running the full stack on a fresh Windows PC.
 
 ---
 
-## 1) Features
+## 1) Verify required software
 
-- Ingest plain text → chunk → embed → store.
-- Ask a question → retrieve top-K chunks by **cosine similarity** → build prompt → get answer.
-- Works with:
-  - **Ollama** (local, no API key).
-  - **OpenAI-compatible** APIs (set your key).
-- Very simple web UI (server-rendered) **or** JSON API (if you prefer React/JS).
+Open **Command Prompt** and run each command.
+If any command shows “not recognized,” install that software first.
 
----
-
-## 2) Project Structure
-
-```
-src/
- ├─ main/
- │   ├─ java/dev/gov/rag/
- │   │   ├─ RagBootApplication.java        # Spring Boot starter
- │   │   ├─ core/
- │   │   │   ├─ Chunker.java               # chunk + cosine
- │   │   │   ├─ Embedder.java              # embeddings API caller
- │   │   │   ├─ ChatClient.java            # chat completions API caller
- │   │   │   └─ RagService.java            # ingest + ask orchestration
- │   │   ├─ model/Chunk.java               # row model
- │   │   ├─ repo/ChunkRepo.java            # JDBC repo (H2)
- │   │   └─ web/RagController.java         # UI controller (Thymeleaf) or ApiController (JSON)
- │   └─ resources/
- │       ├─ application.properties         # config (DB + LLM)
- │       ├─ schema.sql                     # H2 schema (creates table)
- │       └─ templates/index.html           # simple UI (if using Thymeleaf)
- └─ test/...
+```bat
+git --version
+java -version
+node -v
+npm -v
+ollama --version
 ```
 
----
-
-## 3) Requirements
-
-- Java **17+**
-- Maven (wrapper provided: `./mvnw`)
-- One LLM path:
-  - **Ollama** (local): `ollama serve`, models pulled.
-  - **OpenAI-compatible**: API key.
+> Note: Spring Boot uses Maven. If your repo includes `mvnw.cmd`, you don’t need to install Maven.
+> If there’s no `mvnw.cmd`, install Maven and ensure `mvn -v` works.
 
 ---
 
-## 4) Configure LLM
+## 2) Get the code
 
-Edit `src/main/resources/application.properties` and pick ONE option.
-
-### Option A — Ollama (local)
-```properties
-# Web server
-server.port=8080
-
-# H2 file DB
-spring.datasource.url=jdbc:h2:file:./ragdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
-spring.datasource.username=sa
-spring.datasource.password=
-spring.jpa.hibernate.ddl-auto=none
-spring.sql.init.mode=always
-spring.sql.init.schema-locations=classpath:schema.sql
-spring.h2.console.enabled=true
-spring.h2.console.path=/h2
-
-# LLM / embedding (Ollama OpenAI-compatible API)
-llm.base-url=http://localhost:11434/v1
-llm.api-key=
-llm.chat-model=llama3
-llm.embed-model=nomic-embed-text
+```bat
+cd %USERPROFILE%
+mkdir code
+cd code
+git clone https://github.com/<your-org>/<your-repo>.git
+cd <your-repo>
 ```
 
-Start Ollama once:
-```bash
+Replace `<your-org>/<your-repo>` with your actual repo path.
+
+---
+
+## 3) Download and start Ollama models
+
+Open **Command Prompt #1** (keep it running):
+
+```bat
 ollama serve
+```
+
+Open **Command Prompt #2** and pull the models:
+
+```bat
 ollama pull llama3
 ollama pull nomic-embed-text
 ```
 
-### Option B — OpenAI-compatible
-```properties
-llm.base-url=https://api.openai.com/v1
-llm.api-key=YOUR_KEY
-llm.chat-model=gpt-4o-mini
-llm.embed-model=text-embedding-3-small
+---
+
+## 4) Start the Spring Boot backend (port 8080)
+
+From your **project root** (where `pom.xml` is):
+
+```bat
+.\mvnw.cmd spring-boot:run
 ```
+
+> If there’s no `mvnw.cmd`, use:
+>
+> ```bat
+> mvn spring-boot:run
+> ```
+
+When started, check in your browser:
+
+* Backend page: **[http://localhost:8080/](http://localhost:8080/)**
+* H2 console: **[http://localhost:8080/h2](http://localhost:8080/h2)**
+
+  * JDBC URL: `jdbc:h2:file:./ragdb`
+  * User: `sa`
+  * Password: *(leave empty)*
 
 ---
 
-## 5) DB Schema (H2)
+## 5) Run the React frontend (port 5173)
 
-`src/main/resources/schema.sql`
-```sql
-DROP TABLE IF EXISTS chunks;
+Open **Command Prompt #3**:
 
--- Composite primary key (docId + chunk_index)
-CREATE TABLE chunks (
-  doc_id      VARCHAR(255) NOT NULL,
-  chunk_index INT          NOT NULL,
-  text        CLOB         NOT NULL,
-  embedding   CLOB         NOT NULL,
-  PRIMARY KEY (doc_id, chunk_index)
-);
-
-CREATE INDEX IF NOT EXISTS idx_chunks_doc ON chunks(doc_id);
+```bat
+cd %USERPROFILE%\code\<your-repo>\rag-ui
+npm install
+npm run dev
 ```
 
-> We store the embedding as a JSON array string (simple for H2).  
-> Retrieval does cosine similarity in Java.
+Open in browser:
+
+* React: **[http://localhost:5173](http://localhost:5173)**
+* Backend: **[http://localhost:8080](http://localhost:8080)**
+* H2: **[http://localhost:8080/h2](http://localhost:8080/h2)**
 
 ---
 
-## 6) Build & Run
+## Tips
 
-```bash
-# from project root
-./mvnw clean spring-boot:run
-```
+* Keep **3 terminals** open:
 
-Open: **http://localhost:8080**
+  1. `ollama serve`
+  2. Spring Boot (`mvnw.cmd spring-boot:run`)
+  3. React (`npm run dev`)
+* If the browser shows a **CORS** error, ensure the backend has:
 
-- **Ingest Text**: enter `docId` + paste raw text → **Ingest**  
-- **Ask**: type your question → **Ask**
-
-H2 console: **http://localhost:8080/h2**  
-JDBC URL: `jdbc:h2:file:./ragdb`
-
----
-
-## 7) API (JSON) — if you prefer fetch/React
-
-If you use a plain HTML/React front-end, expose JSON endpoints (sample):
-
-```
-POST /api/ingest
-Body: { "docId": "networks101", "text": "..." }
-Resp: { "message": "Ingested N chunks for docId=..." }
-
-POST /api/ask
-Body: { "question": "What is ...?", "topK": 5 }
-Resp: { "answer": "..." }
-```
-
-Optional streaming (SSE) endpoint (advanced):
-```
-GET /api/ask/stream?question=...&topK=5
-Events:
-  event: delta  data: <partial text>
-  event: done   data:
-```
-
-> If you use SSE from a different origin, enable CORS for `/api/**`.
-
----
-
-## 8) How the flow works (high level)
-
-1. **Ingest**
-   - UI sends `docId` + raw text → `/ingest`.
-   - Service splits text into chunks, gets an **embedding** for each chunk, stores rows in `chunks` (H2).
-
-2. **Ask**
-   - UI sends `question` → service embeds question.
-   - Compute **cosine similarity** between question vector and each chunk vector.
-   - Take **Top-K** chunks, build a prompt, call the **chat** API.
-   - Return the answer to UI.
-
-(That’s the RAG pipeline without going into the logic details.)
-
----
-
-## 9) Troubleshooting
-
-- **Cannot find Thymeleaf view `index`:**  
-  Ensure file path is `src/main/resources/templates/index.html`  
-  Controller must be `@Controller` and `return "index"`.
-
-- **NPE in Embedder (json `data` missing):**  
-  Your embeddings endpoint returned an error or different shape.  
-  Check Ollama is running and model names are correct. Test:
-  ```bash
-  curl -s http://localhost:11434/v1/embeddings     -H "Content-Type: application/json"     -d '{"model":"nomic-embed-text","input":"hello"}'
   ```
-  Should contain either `{"data":[{"embedding":[...]}]}` or `{"embedding":[...]}`.
-
-- **H2 table not found / old schema still used:**  
-  Make sure:
-  ```properties
-  spring.sql.init.mode=always
-  spring.sql.init.schema-locations=classpath:schema.sql
-  ```
-  If needed, delete old files once:
-  ```bash
-  rm -f ragdb.mv.db ragdb.trace.db
+  app.cors.allowed-origins=http://localhost:5173
   ```
 
-- **HttpClient class error (TlsSocketStrategy):**  
-  Remove explicit versions of `httpclient5/httpcore5` from `pom.xml` so Spring Boot manages them, then:
-  ```bash
-  ./mvnw clean spring-boot:run
-  ```
-  Or use JDK HTTP client and set `spring.http.client.factory=jdk`.
-
----
-
-## 10) Upgrade Path (when ready)
-
-- **PostgreSQL + pgvector**: store real vectors, query with `ORDER BY embedding <=> :qvec LIMIT k`.  
-- **Hybrid retrieval**: add keyword search (trigram/BM25) + merge with vector hits.  
-- **React UI**: move to a JSON API only, add **streaming answers** via SSE.  
-- **File ingestion**: add PDF/Docx parsing (Apache Tika).
-
----
-
-## 11) License
-
-MIT (or add your own).
-
----
-
-## 12) Quick Commands (cheat sheet)
-
-```bash
-# Run app
-./mvnw spring-boot:run
-
-# Rebuild from scratch
-./mvnw clean package
-
-# H2 console
-open http://localhost:8080/h2
-
-# Test Ollama embeddings
-ollama serve
-ollama pull llama3
-ollama pull nomic-embed-text
-curl -s http://localhost:11434/v1/embeddings   -H "Content-Type: application/json"   -d '{"model":"nomic-embed-text","input":"hello"}'
-```
+  Then restart the backend.
+* If ports are busy, close conflicting apps or change the port in config.

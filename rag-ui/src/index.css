@@ -1,0 +1,127 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: #196eb8;
+  background: oklab(78.422% 0.00216 0.00058);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* RESET the Vite defaults that cause the left-shift */
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: block;              /* 👈 remove flex centering */
+}
+
+#root {
+  width: 100%;                 /* 👈 full width root */
+  max-width: none;             /* 👈 no artificial cap here */
+  padding: 0;                  /* 👈 remove side padding */
+  text-align: initial;         /* 👈 let components control alignment */
+}
+
+/* Centered page container */
+.page {
+  width: min(960px, 92vw);
+  margin-inline: auto;         /* 👈 centers horizontally */
+  padding: 32px 20px;
+}
+
+/* Header */
+.page h2 {
+  margin: 0 0 16px;
+  text-align: center;
+}
+
+/* Card */
+.card {
+  background: #d2e7f0;
+  border: 1px solid #abc3f4;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 14px 0;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+/* Labels & inputs */
+label {
+  font-size: 14px;
+  color: #334155;
+  display: block;
+  margin: 8px 0 4px;
+}
+input, textarea, select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #fff;
+  color: #111827;
+  outline: none;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* Buttons */
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+button {
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  background: #111827;
+  color: #fff;
+  cursor: pointer;
+}
+button:hover { filter: brightness(1.05); }
+button.secondary {
+  background: #f9fafb;
+  color: #111827;
+}
+
+/* Answer box */
+.answer {
+  white-space: pre-wrap;
+  background: #f8fafc;         /* 👈 neutral, readable */
+  border: 1px solid #e5e7eb;
+  padding: 12px;
+  border-radius: 10px;
+  min-height: 80px;
+  margin-top: 8px;
+}
+
+/* Success hint */
+.ok { color: #16a34a; }
+
+
+.db-grid {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.db-grid th, .db-grid td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: left;
+  font-size: 14px;
+}
+.db-grid th { background: #f8fafc; color: #334155; }
+.db-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.db-meta { color: #475569; font-size: 13px; }
