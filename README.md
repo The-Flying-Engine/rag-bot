@@ -1,9 +1,3 @@
-# RAG Chat — Windows Setup & Run (README)
-
-A simple, step-by-step guide for running the full stack on a fresh Windows PC.
-
----
-
 ## 1) Verify required software
 
 Open **Command Prompt** and run each command.
@@ -94,9 +88,6 @@ Open in browser:
 * Backend: **[http://localhost:8080](http://localhost:8080)**
 * H2: **[http://localhost:8080/h2](http://localhost:8080/h2)**
 
----
-
-## Tips
 
 * Keep **3 terminals** open:
 
